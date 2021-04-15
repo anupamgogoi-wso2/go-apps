@@ -1,0 +1,7 @@
+apiVersion: apps.anupam.com/v1
+kind: HelloApp
+metadata:
+  name: helloapp-sample
+spec:
+  # Add fields here
+  name: test111
