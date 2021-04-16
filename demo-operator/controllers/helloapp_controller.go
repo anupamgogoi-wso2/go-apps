@@ -22,6 +22,9 @@ import (
 
 	appsv1 "github.com/anupamgogoi/memcached-operator/api/v1"
 	"github.com/go-logr/logr"
+	a "k8s.io/api/apps/v1"
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -49,4 +52,28 @@ func (r *HelloAppReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&appsv1.HelloApp{}).
 		Complete(r)
+}
+
+func (c *HelloAppReconciler) deployHelloApp(ha *appsv1.HelloApp) *a.Deployment {
+	replicas := ha.Spec.Size
+	dep := &a.Deployment{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      ha.Name,
+			Namespace: ha.Namespace,
+		},
+		Spec: a.DeploymentSpec{
+			Replicas: &replicas,
+			// Selector
+			Template: corev1.PodTemplateSpec{
+				ObjectMeta: metav1.ObjectMeta{},
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{{
+						Image: "",
+						Name:  "hello-app",
+					}},
+				},
+			},
+		},
+	}
+	return dep
 }
