@@ -9,15 +9,15 @@ rules:
 - apiGroups:
   - apps
   resources:
-    - deployments
+  - deployments
   verbs:
-    - get
-    - list
-    - create
-    - update
-    - delete
-    - patch
-    - watch
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
 - apiGroups:
   - apps.anupam.com
   resources:
