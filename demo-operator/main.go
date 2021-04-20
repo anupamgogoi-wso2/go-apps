@@ -28,8 +28,8 @@ import (
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	ctrl "sigs.k8s.io/controller-runtime"
 
-	appsv1 "github.com/anupamgogoi/memcached-operator/api/v1"
-	"github.com/anupamgogoi/memcached-operator/controllers"
+	appsv1 "github.com/anupamgogoi/demo-operator/api/v1"
+	"github.com/anupamgogoi/demo-operator/controllers"
 	"github.com/prometheus/common/log"
 	//+kubebuilder:scaffold:imports
 )

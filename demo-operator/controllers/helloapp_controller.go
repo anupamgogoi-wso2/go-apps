@@ -19,7 +19,7 @@ package controllers
 import (
 	"context"
 
-	appsv1 "github.com/anupamgogoi/memcached-operator/api/v1"
+	appsv1 "github.com/anupamgogoi/demo-operator/api/v1"
 	"github.com/go-logr/logr"
 	"github.com/prometheus/common/log"
 	a "k8s.io/api/apps/v1"

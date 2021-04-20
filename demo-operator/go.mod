@@ -1,4 +1,4 @@
-module github.com/anupamgogoi/memcached-operator
+module github.com/anupamgogoi/demo-operator
 
 go 1.15
 

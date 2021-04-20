@@ -4,7 +4,7 @@ plugins:
   manifests.sdk.operatorframework.io/v2: {}
   scorecard.sdk.operatorframework.io/v2: {}
 projectName: demo-operator
-repo: github.com/anupamgogoi/memcached-operator
+repo: github.com/anupamgogoi/demo-operator
 resources:
 - api:
     crdVersion: v1
@@ -13,6 +13,6 @@ resources:
   domain: anupam.com
   group: apps
   kind: HelloApp
-  path: github.com/anupamgogoi/memcached-operator/api/v1
+  path: github.com/anupamgogoi/demo-operator/api/v1
   version: v1
 version: "3"
