@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-operator-deployment
+  namespace: demo-operator-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-operator-controller
+  template:
+    metadata:
+      labels:
+        app: demo-operator-controller
+    spec:
+      containers:
+        - name: demo-operator-controller
+          image: anupamgogoi/demo-operator:latest
+          imagePullPolicy: Always
+      serviceAccountName: demo-operator-svc

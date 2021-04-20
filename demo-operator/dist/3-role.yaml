@@ -1,0 +1,46 @@
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: manager-role
+rules:
+- apiGroups:
+  - apps
+  resources:
+    - deployments
+  verbs:
+    - get
+    - list
+    - create
+    - update
+    - delete
+    - patch
+    - watch
+- apiGroups:
+  - apps.anupam.com
+  resources:
+  - helloapps
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - apps.anupam.com
+  resources:
+  - helloapps/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - apps.anupam.com
+  resources:
+  - helloapps/status
+  verbs:
+  - get
+  - patch
+  - update
