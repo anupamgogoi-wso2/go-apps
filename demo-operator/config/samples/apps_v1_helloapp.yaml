@@ -4,6 +4,7 @@ metadata:
   name: helloapp-sample
 spec:
   # Add fields here
+  image: "anupamgogoi/mock-app"
   name: test111
-  Age: 7
+  age: 11
   size: 1

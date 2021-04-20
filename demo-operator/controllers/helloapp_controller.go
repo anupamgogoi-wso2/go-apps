@@ -18,7 +18,6 @@ package controllers
 
 import (
 	"context"
-	"fmt"
 
 	appsv1 "github.com/anupamgogoi/memcached-operator/api/v1"
 	"github.com/go-logr/logr"
@@ -45,7 +44,7 @@ type HelloAppReconciler struct {
 //+kubebuilder:rbac:groups=apps.anupam.com,resources=helloapps/finalizers,verbs=update
 func (r *HelloAppReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = r.Log.WithValues("helloapp", req.NamespacedName)
-	fmt.Println("CRD....")
+	log.Info("Processing HelloAppReconciler.")
 	helloApp := &appsv1.HelloApp{}
 	err := r.Client.Get(ctx, req.NamespacedName, helloApp)
 	if err != nil {
@@ -53,11 +52,11 @@ func (r *HelloAppReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 			// Request object not found, could have been deleted after reconcile request.
 			// Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
 			// Return and don't requeue
-			log.Info("Memcached resource not found. Ignoring since object must be deleted")
+			log.Info("HelloApp resource not found. Ignoring since object must be deleted")
 			return ctrl.Result{}, nil
 		}
 		// Error reading the object - requeue the request.
-		log.Error(err, "Failed to get Memcached")
+		log.Error(err, "Failed to get HelloApp")
 		return ctrl.Result{}, err
 	}
 	// Check if the deployment already exists, if not create a new one
@@ -77,6 +76,19 @@ func (r *HelloAppReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		log.Error(err, "Failed to get Deployment")
 		return ctrl.Result{}, err
 	}
+
+	// Check desired amount of deploymets.
+	size := helloApp.Spec.Size
+	if *found.Spec.Replicas != size {
+		found.Spec.Replicas = &size
+		err = r.Client.Update(ctx, found)
+		if err != nil {
+			log.Error(err, "Failed to update Deployment", "Deployment.Namespace", found.Namespace, "Deployment.Name", found.Name)
+			return ctrl.Result{}, err
+		}
+		// Spec updated - return and requeue
+		return ctrl.Result{Requeue: true}, nil
+	}
 	return ctrl.Result{}, nil
 }
 
@@ -90,6 +102,8 @@ func (r *HelloAppReconciler) SetupWithManager(mgr ctrl.Manager) error {
 func (c *HelloAppReconciler) deployHelloApp(ha *appsv1.HelloApp) *a.Deployment {
 	replicas := ha.Spec.Size
 	labels := map[string]string{"app": "mock-containers"}
+	name := ha.Spec.Name
+	image := ha.Spec.Image
 	dep := &a.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      ha.Name,
@@ -106,12 +120,13 @@ func (c *HelloAppReconciler) deployHelloApp(ha *appsv1.HelloApp) *a.Deployment {
 				},
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{{
-						Image: "anupamgogoi/mock-app",
-						Name:  "hello-app",
+						Image: image,
+						Name:  name,
 					}},
 				},
 			},
 		},
 	}
+	ctrl.SetControllerReference(ha, dep, c.Scheme)
 	return dep
 }
