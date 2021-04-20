@@ -1,0 +1,45 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: '[]'
+    capabilities: Basic Install
+  name: demo-operator.v0.0.0
+  namespace: placeholder
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - description: HelloApp is the Schema for the helloapps API
+      displayName: Hello App
+      kind: HelloApp
+      name: helloapps.apps.anupam.com
+      version: v1
+  description: demo-operator
+  displayName: demo-operator
+  icon:
+  - base64data: ""
+    mediatype: ""
+  install:
+    spec:
+      deployments: null
+    strategy: ""
+  installModes:
+  - supported: false
+    type: OwnNamespace
+  - supported: false
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  keywords:
+  - demo
+  links:
+  - name: Demo Operator
+    url: https://demo-operator.domain
+  maturity: alpha
+  provider:
+    name: anupam
+    url: http://demo
+  version: 0.0.0

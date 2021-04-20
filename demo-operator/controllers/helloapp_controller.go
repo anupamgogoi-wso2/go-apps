@@ -42,6 +42,7 @@ type HelloAppReconciler struct {
 //+kubebuilder:rbac:groups=apps.anupam.com,resources=helloapps,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=apps.anupam.com,resources=helloapps/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=apps.anupam.com,resources=helloapps/finalizers,verbs=update
+
 func (r *HelloAppReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = r.Log.WithValues("helloapp", req.NamespacedName)
 	log.Info("Processing HelloAppReconciler.")

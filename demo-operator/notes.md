@@ -5,3 +5,5 @@ https://docs.openshift.com/container-platform/4.7/operators/operator_sdk/golang/
 
 ### Deploy in Cluster
 make docker-build IMG=anupamgogoi/demo-operator:latest
+make docker-push IMG=anupamgogoi/demo-operator:latest
+make deploy IMG=anupamgogoi/demo-operator:latest
