@@ -22,10 +22,13 @@ import (
 
 	appsv1 "github.com/anupamgogoi/memcached-operator/api/v1"
 	"github.com/go-logr/logr"
+	"github.com/prometheus/common/log"
 	a "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -43,7 +46,37 @@ type HelloAppReconciler struct {
 func (r *HelloAppReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = r.Log.WithValues("helloapp", req.NamespacedName)
 	fmt.Println("CRD....")
-
+	helloApp := &appsv1.HelloApp{}
+	err := r.Client.Get(ctx, req.NamespacedName, helloApp)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			// Request object not found, could have been deleted after reconcile request.
+			// Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
+			// Return and don't requeue
+			log.Info("Memcached resource not found. Ignoring since object must be deleted")
+			return ctrl.Result{}, nil
+		}
+		// Error reading the object - requeue the request.
+		log.Error(err, "Failed to get Memcached")
+		return ctrl.Result{}, err
+	}
+	// Check if the deployment already exists, if not create a new one
+	found := &a.Deployment{}
+	err = r.Client.Get(ctx, types.NamespacedName{Name: helloApp.Name, Namespace: helloApp.Namespace}, found)
+	if err != nil && errors.IsNotFound(err) {
+		dep := r.deployHelloApp(helloApp)
+		log.Info("Creating a new Deployment", "Deployment.Namespace", dep.Namespace, "Deployment.Name", dep.Name)
+		err = r.Client.Create(ctx, dep)
+		if err != nil {
+			log.Error(err, "Failed to create new Deployment", "Deployment.Namespace", dep.Namespace, "Deployment.Name", dep.Name)
+			return ctrl.Result{}, err
+		}
+		// Deployment created successfully - return and requeue
+		return ctrl.Result{Requeue: true}, nil
+	} else if err != nil {
+		log.Error(err, "Failed to get Deployment")
+		return ctrl.Result{}, err
+	}
 	return ctrl.Result{}, nil
 }
 
@@ -56,6 +89,7 @@ func (r *HelloAppReconciler) SetupWithManager(mgr ctrl.Manager) error {
 
 func (c *HelloAppReconciler) deployHelloApp(ha *appsv1.HelloApp) *a.Deployment {
 	replicas := ha.Spec.Size
+	labels := map[string]string{"app": "mock-containers"}
 	dep := &a.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      ha.Name,
@@ -63,12 +97,16 @@ func (c *HelloAppReconciler) deployHelloApp(ha *appsv1.HelloApp) *a.Deployment {
 		},
 		Spec: a.DeploymentSpec{
 			Replicas: &replicas,
-			// Selector
+			Selector: &metav1.LabelSelector{
+				MatchLabels: labels,
+			},
 			Template: corev1.PodTemplateSpec{
-				ObjectMeta: metav1.ObjectMeta{},
+				ObjectMeta: metav1.ObjectMeta{
+					Labels: labels,
+				},
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{{
-						Image: "",
+						Image: "anupamgogoi/mock-app",
 						Name:  "hello-app",
 					}},
 				},

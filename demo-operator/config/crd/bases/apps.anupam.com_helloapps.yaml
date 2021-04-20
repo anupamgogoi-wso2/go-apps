@@ -42,6 +42,11 @@ spec:
                 description: Foo is an example field of HelloApp. Edit helloapp_types.go
                   to remove/update
                 type: string
+              size:
+                format: int32
+                type: integer
+            required:
+            - size
             type: object
           status:
             description: HelloAppStatus defines the observed state of HelloApp

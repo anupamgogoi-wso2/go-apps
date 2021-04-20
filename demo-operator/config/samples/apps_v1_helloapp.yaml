@@ -6,3 +6,4 @@ spec:
   # Add fields here
   name: test111
   Age: 7
+  size: 1
