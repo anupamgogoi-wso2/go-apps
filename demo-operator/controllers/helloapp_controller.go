@@ -104,7 +104,6 @@ func (r *HelloAppReconciler) SetupWithManager(mgr ctrl.Manager) error {
 func (c *HelloAppReconciler) deployHelloApp(ha *appsv1.HelloApp) *a.Deployment {
 	replicas := ha.Spec.Size
 	labels := map[string]string{"app": "mock-containers"}
-	name := ha.Spec.Name
 	image := ha.Spec.Image
 	dep := &a.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
@@ -123,7 +122,7 @@ func (c *HelloAppReconciler) deployHelloApp(ha *appsv1.HelloApp) *a.Deployment {
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{{
 						Image: image,
-						Name:  name,
+						Name:  ha.Name,
 					}},
 				},
 			},

@@ -36,13 +36,7 @@ spec:
           spec:
             description: HelloAppSpec defines the desired state of HelloApp
             properties:
-              age:
-                type: integer
               image:
-                type: string
-              name:
-                description: Foo is an example field of HelloApp. Edit helloapp_types.go
-                  to remove/update
                 type: string
               size:
                 format: int32
