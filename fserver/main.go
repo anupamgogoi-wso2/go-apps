@@ -7,7 +7,9 @@ import (
 	"os"
 )
 
-var ignoreURIs = "/favicon.ico"
+const (
+	ignoreURIs = "/favicon.ico"
+)
 
 func main() {
 	fileServer()
