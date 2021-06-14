@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-var ignoreURIs = []string{"/", "/favicon.ico"}
+var ignoreURIs = "/favicon.ico"
 
 func main() {
 	fileServer()
@@ -22,40 +22,21 @@ func fileServer() {
 }
 func fileHandler(w http.ResponseWriter, r *http.Request) {
 	clientIP, _, _ := net.SplitHostPort(r.RemoteAddr)
-	isRootOrFavicon := checkRootOrFavicon(r.RequestURI)
 	path, _ := os.Getwd()
-	if isRootOrFavicon {
+	path = path + r.RequestURI
+	if ignoreURIs != r.RequestURI && checkIfFile(path) {
+		fileName := r.RequestURI[1:len(r.RequestURI)]
+		log.Println("Downloading " + fileName + " from " + clientIP)
+		w.Header().Set("Content-Disposition", "attachment; filename="+fileName)
+		w.Header().Set("Content-Type", r.Header.Get("Content-Type"))
+		http.ServeFile(w, r, path)
+	} else {
 		log.Println("Requesting " + path + " from " + clientIP)
 		fs := http.FileServer(http.Dir("."))
 		fs.ServeHTTP(w, r)
-	} else {
-		path := path + r.RequestURI
-		isFile := checkIfFile(path)
-		if isFile {
-			fileName := r.RequestURI[1:len(r.RequestURI)]
-			log.Println("Downloading " + fileName + " from " + clientIP)
-			w.Header().Set("Content-Disposition", "attachment; filename="+fileName)
-			w.Header().Set("Content-Type", r.Header.Get("Content-Type"))
-			http.ServeFile(w, r, path)
-
-		} else {
-			log.Println("Requesting " + path + " from " + clientIP)
-			fs := http.FileServer(http.Dir("."))
-			fs.ServeHTTP(w, r)
-		}
-
 	}
 
 }
-func checkRootOrFavicon(val string) (found bool) {
-	for i := 0; i < len(ignoreURIs); i++ {
-		if ignoreURIs[i] == val {
-			return true
-		}
-	}
-	return false
-}
-
 func checkIfFile(path string) (isFile bool) {
 	file, _ := os.Open(path)
 	fileInfo, _ := file.Stat()
