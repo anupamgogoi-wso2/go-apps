@@ -18,9 +18,9 @@ func fileServer() {
 
 }
 func fileHandler(w http.ResponseWriter, r *http.Request) {
-	found := find(r.RequestURI)
+	isRootOrFavicon := checkRootOrFavicon(r.RequestURI)
 	path, _ := os.Getwd()
-	if found {
+	if isRootOrFavicon {
 		log.Println("Serving from: " + path)
 		fs := http.FileServer(http.Dir("."))
 		fs.ServeHTTP(w, r)
@@ -40,7 +40,7 @@ func fileHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
-func find(val string) (found bool) {
+func checkRootOrFavicon(val string) (found bool) {
 	uris := getExcludedURIs()
 	for i := 0; i < len(uris); i++ {
 		if uris[i] == val {
