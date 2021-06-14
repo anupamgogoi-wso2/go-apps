@@ -2,9 +2,12 @@ package main
 
 import (
 	"log"
+	"net"
 	"net/http"
 	"os"
 )
+
+var ignoreURIs = []string{"/", "/favicon.ico"}
 
 func main() {
 	fileServer()
@@ -18,23 +21,25 @@ func fileServer() {
 
 }
 func fileHandler(w http.ResponseWriter, r *http.Request) {
+	clientIP, _, _ := net.SplitHostPort(r.RemoteAddr)
 	isRootOrFavicon := checkRootOrFavicon(r.RequestURI)
 	path, _ := os.Getwd()
 	if isRootOrFavicon {
-		log.Println("Serving from: " + path)
+		log.Println("Requesting " + path + " from " + clientIP)
 		fs := http.FileServer(http.Dir("."))
 		fs.ServeHTTP(w, r)
 	} else {
 		path := path + r.RequestURI
 		isFile := checkIfFile(path)
 		if isFile {
-			log.Println("Downloading: " + path)
-			w.Header().Set("Content-Disposition", "attachment; filename="+r.RequestURI[1:len(r.RequestURI)])
+			fileName := r.RequestURI[1:len(r.RequestURI)]
+			log.Println("Downloading " + fileName + " from " + clientIP)
+			w.Header().Set("Content-Disposition", "attachment; filename="+fileName)
 			w.Header().Set("Content-Type", r.Header.Get("Content-Type"))
 			http.ServeFile(w, r, path)
 
 		} else {
-			log.Println("Serving from: " + path)
+			log.Println("Requesting " + path + " from " + clientIP)
 			fs := http.FileServer(http.Dir("."))
 			fs.ServeHTTP(w, r)
 		}
@@ -43,17 +48,14 @@ func fileHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 func checkRootOrFavicon(val string) (found bool) {
-	uris := getExcludedURIs()
-	for i := 0; i < len(uris); i++ {
-		if uris[i] == val {
+	for i := 0; i < len(ignoreURIs); i++ {
+		if ignoreURIs[i] == val {
 			return true
 		}
 	}
 	return false
 }
-func getExcludedURIs() []string {
-	return []string{"/", "/favicon.ico"}
-}
+
 func checkIfFile(path string) (isFile bool) {
 	file, _ := os.Open(path)
 	fileInfo, _ := file.Stat()
