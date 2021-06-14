@@ -31,6 +31,8 @@ func fileHandler(w http.ResponseWriter, r *http.Request) {
 			log.Println("Downloading: " + path)
 			w.Header().Set("Content-Disposition", "attachment; filename="+r.RequestURI[1:len(r.RequestURI)])
 			w.Header().Set("Content-Type", r.Header.Get("Content-Type"))
+			http.ServeFile(w, r, path)
+
 		} else {
 			log.Println("Serving from: " + path)
 			fs := http.FileServer(http.Dir("."))
